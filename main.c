@@ -5,11 +5,11 @@ int filter_text(char *source_path, char *target_path) {
     FILE *fout = fopen(target_path, "w");
 
     if(fin == NULL) {
-        printf("Error: File to be filtered not found!\n");
+        printf("[filter_text] Error: File not found!\n");
         return -1;
     }
     if(fout == NULL) {
-        printf("Error: Target file for the filtered text couldn't be created!\n");
+        printf("[filter_text] Error: File couldn't be created!\n");
         return -1;
     }
 
