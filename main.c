@@ -28,11 +28,7 @@ int filter_text(char *source_path, char *target_path) {
             }
             word_size = 0;
         }
-        if((int)ch >= 65 && (int)ch <=90) {
-            fprintf(fout, "%c", (int)ch + 32);
-            word_size++;
-            last_space = 0;
-        } else if((int)ch >= 97 && (int)ch <=122) {
+        if(((int)ch >= 65 && (int)ch <=90) || ((int)ch >= 97 && (int)ch <=122)) {
             fprintf(fout, "%c", ch);
             word_size++;
             last_space = 0;
@@ -55,6 +51,8 @@ int filter_text(char *source_path, char *target_path) {
 
     return 1;
 }
+
+
 
 int main() {
     char *sample_path = "./texts/sample.txt";
