@@ -52,7 +52,37 @@ int filter_text(char *source_path, char *target_path) {
     return 1;
 }
 
+float *get_prob(char *source_path) {
+    FILE *fp = fopen(source_path, "r");
+    float *probs = (float *)malloc(sizeof(float) * 26);
+    char ch;
+    int size = 0;
 
+    if(fp == NULL) {
+        printf("[get_prob] Error: File not found!\n");
+        return -1;
+    }
+
+    for(int i = 0; i < 26; i++) {
+        probs[i] = 0.0;
+    }
+    while(fscanf(fp, "%c", &ch) == 1) {
+        if((int)ch == 32) {
+            continue;
+        }
+        size++;
+        if((int)ch < 97) {
+            ch = ch + 32;
+        }
+        probs[(ch - 97) % 26]++;
+    }
+    for(int i = 0; i < 26; i++) {
+        probs[i] = probs[i] * 100 / size;
+    }
+    fclose(fp);
+
+    return probs;
+}
 
 int main() {
     char *sample_path = "./texts/sample.txt";
