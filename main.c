@@ -109,7 +109,6 @@ int filter_text(char *source_path, char *target_path) {
 
 float *get_prob(char *source_path) {
     FILE *fp = fopen(source_path, "r");
-    float *probs = (float *)malloc(sizeof(float) * 26);
     char ch;
     int size = 0;
 
@@ -118,8 +117,14 @@ float *get_prob(char *source_path) {
         return -1;
     }
 
+    float **probs = (float **)malloc(sizeof(float *) * 26);
     for(int i = 0; i < 26; i++) {
-        probs[i] = 0.0;
+        probs[i] = (float *)malloc(sizeof(float) * 2);
+    }
+
+    for(int i = 0; i < 26; i++) {
+        probs[i][0] = i;
+        probs[i][1] = 0.0;
     }
     while(fscanf(fp, "%c", &ch) == 1) {
         if((int)ch == 32) {
@@ -129,14 +134,26 @@ float *get_prob(char *source_path) {
         if((int)ch < 97) {
             ch = ch + 32;
         }
-        probs[(ch - 97) % 26]++;
+        probs[(ch - 97) % 26][1]++;
     }
     for(int i = 0; i < 26; i++) {
-        probs[i] = probs[i] * 100 / size;
+        probs[i][1] = probs[i][1] * 100 / size;
     }
     fclose(fp);
 
     return probs;
+}
+
+int huffman_coding(char *source_path) {
+    float **probs = get_prob(source_path);
+
+    for(int i = 0; i < 26; i++) {
+        printf("%5d ", (int)probs[i][0]);
+    }
+    printf("\n");
+    for(int i = 0; i < 26; i++) {
+        printf("%5.2f ", probs[i][1]);
+    }
 }
 
 int main() {
