@@ -35,5 +35,10 @@ int filter_text(char *source_path, char *target_path) {
 }
 
 int main() {
+    char *sample_path = "./texts/sample.txt";
+    char *clean_sample_path = "./texts/clean_sample.txt";
+    
+    filter_text(sample_path, clean_sample_path);
+
     return 0;
 }
