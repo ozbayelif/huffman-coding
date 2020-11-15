@@ -181,7 +181,7 @@ float *get_probs(char *source_path) {
     }
 
     for(int i = 0; i < 26; i++) {
-        probs[i][0] = i;
+        probs[i][0] = i + 97;
         probs[i][1] = 0.0;
     }
     while(fscanf(fp, "%c", &ch) == 1) {
