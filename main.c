@@ -17,7 +17,7 @@ huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(float data);
 void hufmann_tree_print(huffman_node node, int i);
 int filter_text(char *source_path, char *target_path);
-float *get_prob(char *source_path);
+float *get_probs(char *source_path);
 
 huffman_tree huffman_tree_init() {
     huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
@@ -107,13 +107,13 @@ int filter_text(char *source_path, char *target_path) {
     return 1;
 }
 
-float *get_prob(char *source_path) {
+float *get_probs(char *source_path) {
     FILE *fp = fopen(source_path, "r");
     char ch;
     int size = 0;
 
     if(fp == NULL) {
-        printf("[get_prob] Error: File not found!\n");
+        printf("[get_probs] Error: File not found!\n");
         return -1;
     }
 
