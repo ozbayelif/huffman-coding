@@ -14,20 +14,42 @@ int filter_text(char *source_path, char *target_path) {
     }
 
     char ch;
+    int word_size = 0, last_space = 0;
     while(fscanf(fin, "%c", &ch) == 1) {
         if((int)ch == 32 || (int)ch == 10) {
             while((int)ch == 32 || (int)ch == 10) {
-                fscanf(fin, "%c", &ch);
+                if(fscanf(fin, "%c", &ch) != 1) {
+                    break;
+                }
             }
-            fprintf(fout, "%c", ' ');
+            if(!last_space) {
+                fprintf(fout, "%c", ' ');
+                last_space = 1;
+            }
+            word_size = 0;
         }
         if((int)ch >= 65 && (int)ch <=90) {
             fprintf(fout, "%c", (int)ch + 32);
+            word_size++;
+            last_space = 0;
         } else if((int)ch >= 97 && (int)ch <=122) {
             fprintf(fout, "%c", ch);
+            word_size++;
+            last_space = 0;
+        } else if((int)ch >= 128 || (int)ch < 0) {
+            fseek(fout, -word_size, SEEK_CUR);
+            while(fscanf(fin, "%c", &ch) == 1) {
+                if((int)ch == 10 || (int)ch == 32) {
+                    break;
+                }
+            }
+            if(!last_space) {
+                fprintf(fout, "%c", ' ');
+                last_space = 1;
+            }
+            word_size = 0;
         }
     }
-
     fclose(fin);
     fclose(fout);
 
