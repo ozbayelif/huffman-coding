@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+int filter_text(char *source_path, char *target_path);
+float *get_prob(char *source_path);
 
 int filter_text(char *source_path, char *target_path) {
     FILE *fin = fopen(source_path, "r");
