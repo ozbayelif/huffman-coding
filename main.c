@@ -1,8 +1,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct huffman_node_s *huffman_node;
+typedef struct huffman_node_s {
+    float data;
+    huffman_node left;
+    huffman_node right;
+} huffman_node_t[1];
+
+typedef struct huffman_tree_s *huffman_tree;
+typedef struct huffman_tree_s {
+    huffman_node root;
+} huffman_tree_t[1];
+
+huffman_tree huffman_tree_init();
+huffman_node huffman_node_init(float data);
+void hufmann_tree_print(huffman_node node, int i);
 int filter_text(char *source_path, char *target_path);
 float *get_prob(char *source_path);
+
+huffman_tree huffman_tree_init() {
+    huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
+    if(tree == NULL) {
+        printf("[hufmann_tree_init] Error: Tree initialization failed!\n");
+        exit(1);
+    }
+    tree->root = NULL;
+
+    return tree;
+}
+
+huffman_node huffman_node_init(float data) {
+    huffman_node node = (huffman_node)malloc(sizeof(huffman_node_t));
+    if(node == NULL) {
+        printf("[huffman_node_init] Error: Node initialization failed!\n");
+        exit(1);
+    }
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+
+    return node;
+}
+
+void huffman_tree_print(huffman_node node, int i) {
+    if(node != NULL) {
+        i++;
+        huffman_tree_print(node->right, i);
+        for (int j = 0; j < i; j++) {
+            printf("\t");
+        }
+        printf("%f\n", node->data);
+        huffman_tree_print(node->left, i);
+    }
+}
 
 int filter_text(char *source_path, char *target_path) {
     FILE *fin = fopen(source_path, "r");
