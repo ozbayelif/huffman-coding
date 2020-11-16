@@ -219,44 +219,26 @@ int huffman_coding(char *source_path) {
 
     nodes = get_nodes(source_path);
     mergesort(nodes, 0, 26);
-    // for(int i = 0; i < 26; i++) {
-    //     printf("%c(%.2f)\n", nodes[i]->letter, nodes[i]->prob);
-    // }
-    // for(int i = 0; i < 26; i++) {
-    //     if(nodes[i] == NULL) {
-    //         printf("NULL ");
-    //     } else {
-    //         printf("%c(%.2f) ", nodes[i]->letter, nodes[i]->prob);
-    //     }
-    // }
-    // printf("\n\n");
 
+    huffman_node max_node = huffman_node_init('*', 101.0);
+    left = max_node;
+    right = max_node;
+    pos_l = 1;
     while(size > 1) {
-        for(int i = 0; i < 25; i++) {
+        left = max_node;
+        right = max_node;
+        for(int i = 0; i < 26; i++) {
             if(nodes[i] != NULL) {
-                left = nodes[i];
-                pos_l = i;
-                for(int j = i + 1; j < 26; j++) {
-                    if(nodes[j] != NULL) {
-                        right = nodes[j];
-                        pos_r = j;
-                        i = j = 27;
+                if(nodes[i]->prob < left->prob) {
+                    if(nodes[pos_l] != NULL) {
+                        right = nodes[pos_l];
+                        pos_r = pos_l;
                     }
-                }
-            }
-        }
-        // printf("l: %c r: %c\n", left->letter, right->letter);
-        for(int i = 0; i < 25; i++) {
-            if(nodes[i] != NULL) {
-                for(int j = i + 1; j < 26; j++) {
-                    if(nodes[j] != NULL) {
-                        if(nodes[i]->prob + nodes[j]->prob < left->prob + right->prob) {
-                            left = nodes[i];
-                            right = nodes[j];
-                            pos_l = i;
-                            pos_r = j;
-                        }
-                    }
+                    left = nodes[i];
+                    pos_l = i;
+                } else if(nodes[i]->prob < right->prob) {
+                    right = nodes[i];
+                    pos_r = i;
                 }
             }
         }
@@ -266,21 +248,15 @@ int huffman_coding(char *source_path) {
         nodes[pos_l] = NULL;
         nodes[pos_r] = node;
         size--;
-        for(int i = 0; i < 26; i++) {
-            if(nodes[i] == NULL) {
-                printf("NULL ");
-            } else {
-                printf("%c(%.2f) ", nodes[i]->letter, nodes[i]->prob);
-            }
-        }
-        printf("\n\n");
     }
+
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
-
     huffman_tree_print(tree->root, 0);
-
     huffman_tree_free(tree);
+    free(max_node);
+
+    return 1;
 }
 
 int main() {
