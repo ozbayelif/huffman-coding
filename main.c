@@ -16,65 +16,15 @@ typedef struct huffman_tree_s {
     huffman_node root;
 } huffman_tree_t[1];
 
-void merge(huffman_node *A, int p, int q, int r);
-void mergesort (huffman_node *A, int p, int r);
 huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
 void *huffman_tree_free_recursion(huffman_node node);
 void huffman_tree_free(huffman_tree tree);
 void huffman_tree_print(huffman_node node, int i);
+void merge(huffman_node *A, int p, int q, int r);
+void mergesort (huffman_node *A, int p, int r);
 int filter_text(char *source_path, char *target_path);
 huffman_node *get_nodes(char *source_path);
-
-void merge(huffman_node *A, int p, int q, int r) {
-	int i, j, k, n1, n2;
-    huffman_node *L, *R;
-
-	n1 = q - p;
-	n2 = r - q;
-	L = (huffman_node *)malloc(sizeof(huffman_node) * (n1 + 1));
-    for(i = 0; i < n1; i++) {
-        L[i] = huffman_node_init(A[p+i]->letter, A[p+i]->prob);
-    }
-    L[n1] = huffman_node_init('*', INF);
-	R = (huffman_node *)malloc(sizeof(huffman_node) * (n2 + 1));
-    for(i = 0; i < n2; i++) {
-        R[i] = huffman_node_init(A[q+i]->letter, A[q+i]->prob);
-    }
-    R[n2] = huffman_node_init('*', INF);
-
-	i = j = 0;
-	for(k = p; k < r; k++) {
-		if(L[i]->prob <= R[j]->prob) {
-			A[k]->letter = L[i]->letter;
-            A[k]->prob = L[i]->prob;
-			i++;
-		} else {
-			A[k]->letter = R[j]->letter;
-            A[k]->prob = R[j]->prob;
-			j++;
-		}
-	}
-    for(i = 0; i < n1 + 1; i++) {
-        free(L[i]);
-    }
-	free(L);
-    for(i = 0; i < n2 + 1; i++) {
-        free(R[i]);
-    }
-	free(R);
-}
-
-void mergesort (huffman_node *A, int p, int r) {
-	int q;
-	
-	if(r > (p + 1)) {
-		q = (p + r)/2;
-		mergesort(A, p, q);
-		mergesort(A, q, r);
-		merge(A, p, q, r);
-	}
-}
 
 huffman_tree huffman_tree_init() {
     huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
@@ -126,6 +76,56 @@ void huffman_tree_print(huffman_node node, int i) {
         printf("%c(%.2f)\n", node->letter, node->prob);
         huffman_tree_print(node->left, i);
     }
+}
+
+void merge(huffman_node *A, int p, int q, int r) {
+	int i, j, k, n1, n2;
+    huffman_node *L, *R;
+
+	n1 = q - p;
+	n2 = r - q;
+	L = (huffman_node *)malloc(sizeof(huffman_node) * (n1 + 1));
+    for(i = 0; i < n1; i++) {
+        L[i] = huffman_node_init(A[p+i]->letter, A[p+i]->prob);
+    }
+    L[n1] = huffman_node_init('*', INF);
+	R = (huffman_node *)malloc(sizeof(huffman_node) * (n2 + 1));
+    for(i = 0; i < n2; i++) {
+        R[i] = huffman_node_init(A[q+i]->letter, A[q+i]->prob);
+    }
+    R[n2] = huffman_node_init('*', INF);
+
+	i = j = 0;
+	for(k = p; k < r; k++) {
+		if(L[i]->prob <= R[j]->prob) {
+			A[k]->letter = L[i]->letter;
+            A[k]->prob = L[i]->prob;
+			i++;
+		} else {
+			A[k]->letter = R[j]->letter;
+            A[k]->prob = R[j]->prob;
+			j++;
+		}
+	}
+    for(i = 0; i < n1 + 1; i++) {
+        free(L[i]);
+    }
+	free(L);
+    for(i = 0; i < n2 + 1; i++) {
+        free(R[i]);
+    }
+	free(R);
+}
+
+void mergesort (huffman_node *A, int p, int r) {
+	int q;
+	
+	if(r > (p + 1)) {
+		q = (p + r)/2;
+		mergesort(A, p, q);
+		mergesort(A, q, r);
+		merge(A, p, q, r);
+	}
 }
 
 int filter_text(char *source_path, char *target_path) {
