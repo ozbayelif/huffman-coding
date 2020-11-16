@@ -16,8 +16,8 @@ typedef struct huffman_tree_s {
     huffman_node root;
 } huffman_tree_t[1];
 
-void merge(float **A, int p, int q, int r);
-void mergesort (float **A, int p, int r);
+void merge(huffman_node *A, int p, int q, int r);
+void mergesort (huffman_node *A, int p, int r);
 huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
 void *huffman_tree_free_recursion(huffman_node node);
@@ -26,48 +26,46 @@ void huffman_tree_print(huffman_node node, int i);
 int filter_text(char *source_path, char *target_path);
 huffman_node *get_nodes(char *source_path);
 
-void merge(float **A, int p, int q, int r) {
+void merge(huffman_node *A, int p, int q, int r) {
 	int i, j, k, n1, n2;
-    float **L, **R;
+    huffman_node *L, *R;
 
 	n1 = q - p;
 	n2 = r - q;
-	L = (float **)malloc(sizeof(float *) * (n1 + 1));
-    for(i = 0; i < n1 + 1; i++) {
-        L[i] = (float *)malloc(sizeof(float) * 2);
+	L = (huffman_node *)malloc(sizeof(huffman_node) * (n1 + 1));
+    for(i = 0; i < n1; i++) {
+        L[i] = huffman_node_init(A[p+i]->letter, A[p+i]->prob);
     }
-	R = (float **)malloc(sizeof(float *) * (n2 + 1));
-    for(i = 0; i < n2 + 1; i++) {
-        R[i] = (float *)malloc(sizeof(float) * 2);
+    L[n1] = huffman_node_init('*', INF);
+	R = (huffman_node *)malloc(sizeof(huffman_node) * (n2 + 1));
+    for(i = 0; i < n2; i++) {
+        R[i] = huffman_node_init(A[q+i]->letter, A[q+i]->prob);
     }
+    R[n2] = huffman_node_init('*', INF);
 
-	for(i = 0; i < n1; i++) {
-		L[i][0] = A[p+i][0];
-        L[i][1] = A[p+i][1];
-	}
-	for(j = 0; j < n2; j++) {
-		R[j][0] = A[q+j][0];
-        R[j][1] = A[q+j][1];
-	}
 	i = j = 0;
-	L[n1][0] = R[n2][0] = INF;
-    L[n1][1] = R[n2][1] = INF;
 	for(k = p; k < r; k++) {
-		if(L[i][1] <= R[j][1]) {
-			A[k][0] = L[i][0];
-            A[k][1] = L[i][1];
+		if(L[i]->prob <= R[j]->prob) {
+			A[k]->letter = L[i]->letter;
+            A[k]->prob = L[i]->prob;
 			i++;
 		} else {
-			A[k][0] = R[j][0];
-            A[k][1] = R[j][1];
+			A[k]->letter = R[j]->letter;
+            A[k]->prob = R[j]->prob;
 			j++;
 		}
 	}
+    for(i = 0; i < n1 + 1; i++) {
+        free(L[i]);
+    }
 	free(L);
+    for(i = 0; i < n2 + 1; i++) {
+        free(R[i]);
+    }
 	free(R);
 }
 
-void mergesort (float **A, int p, int r) {
+void mergesort (huffman_node *A, int p, int r) {
 	int q;
 	
 	if(r > (p + 1)) {
