@@ -20,7 +20,9 @@ void merge(float **A, int p, int q, int r);
 void mergesort (float **A, int p, int r);
 huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
-void hufmann_tree_print(huffman_node node, int i);
+void *huffman_tree_free_recursion(huffman_node node);
+void huffman_tree_free(huffman_tree tree);
+void huffman_tree_print(huffman_node node, int i);
 int filter_text(char *source_path, char *target_path);
 float *get_probs(char *source_path);
 
@@ -99,6 +101,21 @@ huffman_node huffman_node_init(char letter, float prob) {
     node->right = NULL;
 
     return node;
+}
+
+void *huffman_tree_free_recursion(huffman_node node) {
+    if(node != NULL) {
+        huffman_tree_free_recursion(node->right);
+        huffman_tree_free_recursion(node->left);
+        node->right = NULL;
+        node->left = NULL;
+        free(node);
+    }
+}
+
+void huffman_tree_free(huffman_tree tree) {
+    huffman_tree_free_recursion(tree->root);
+    free(tree);
 }
 
 void huffman_tree_print(huffman_node node, int i) {
