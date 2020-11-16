@@ -187,7 +187,7 @@ huffman_node *get_nodes(char *source_path) {
 
     if(fp == NULL) {
         printf("[get_nodes] Error: File not found!\n");
-        return -1;
+        return NULL;
     }
 
     huffman_node *nodes = (huffman_node *)malloc(sizeof(huffman_node) * 26);
@@ -202,14 +202,14 @@ huffman_node *get_nodes(char *source_path) {
         if((int)ch < 97) {
             ch = ch + 32;
         }
-        probs[(ch - 97) % 26][1]++;
+        nodes[(ch - 97) % 26]->prob++;
     }
     for(int i = 0; i < 26; i++) {
-        probs[i][1] = probs[i][1] * 100 / size;
+        nodes[i]->prob = nodes[i]->prob * 100 / size;
     }
     fclose(fp);
 
-    return probs;
+    return nodes;
 }
 
 int huffman_coding(char *source_path) {
