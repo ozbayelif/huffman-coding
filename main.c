@@ -24,7 +24,7 @@ void *huffman_tree_free_recursion(huffman_node node);
 void huffman_tree_free(huffman_tree tree);
 void huffman_tree_print(huffman_node node, int i);
 int filter_text(char *source_path, char *target_path);
-float *get_probs(char *source_path);
+huffman_node *get_nodes(char *source_path);
 
 void merge(float **A, int p, int q, int r) {
 	int i, j, k, n1, n2;
@@ -182,24 +182,19 @@ int filter_text(char *source_path, char *target_path) {
     return 1;
 }
 
-float *get_probs(char *source_path) {
+huffman_node *get_nodes(char *source_path) {
     FILE *fp = fopen(source_path, "r");
     char ch;
     int size = 0;
 
     if(fp == NULL) {
-        printf("[get_probs] Error: File not found!\n");
+        printf("[get_nodes] Error: File not found!\n");
         return -1;
     }
 
-    float **probs = (float **)malloc(sizeof(float *) * 26);
+    huffman_node *nodes = (huffman_node *)malloc(sizeof(huffman_node) * 26);
     for(int i = 0; i < 26; i++) {
-        probs[i] = (float *)malloc(sizeof(float) * 2);
-    }
-
-    for(int i = 0; i < 26; i++) {
-        probs[i][0] = i + 97;
-        probs[i][1] = 0.0;
+        nodes[i] = huffman_node_init((char)(i + 97), 0.0);
     }
     while(fscanf(fp, "%c", &ch) == 1) {
         if((int)ch == 32) {
