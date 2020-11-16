@@ -18,7 +18,7 @@ typedef struct huffman_tree_s {
 
 huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
-void *huffman_tree_free_recursion(huffman_node node);
+void huffman_tree_free_recursion(huffman_node node);
 void huffman_tree_free(huffman_tree tree);
 void huffman_tree_print(huffman_node node, int i);
 void merge(huffman_node *A, int p, int q, int r);
@@ -51,7 +51,7 @@ huffman_node huffman_node_init(char letter, float prob) {
     return node;
 }
 
-void *huffman_tree_free_recursion(huffman_node node) {
+void huffman_tree_free_recursion(huffman_node node) {
     if(node != NULL) {
         huffman_tree_free_recursion(node->right);
         huffman_tree_free_recursion(node->left);
