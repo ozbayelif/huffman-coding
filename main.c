@@ -213,15 +213,74 @@ huffman_node *get_nodes(char *source_path) {
 }
 
 int huffman_coding(char *source_path) {
-    float **probs = get_prob(source_path);
+    huffman_node *nodes;
+    huffman_node node, left, right;
+    int size = 26, pos_l = 0, pos_r = 1;
 
-    for(int i = 0; i < 26; i++) {
-        printf("%5d ", (int)probs[i][0]);
+    nodes = get_nodes(source_path);
+    mergesort(nodes, 0, 26);
+    // for(int i = 0; i < 26; i++) {
+    //     printf("%c(%.2f)\n", nodes[i]->letter, nodes[i]->prob);
+    // }
+    // for(int i = 0; i < 26; i++) {
+    //     if(nodes[i] == NULL) {
+    //         printf("NULL ");
+    //     } else {
+    //         printf("%c(%.2f) ", nodes[i]->letter, nodes[i]->prob);
+    //     }
+    // }
+    // printf("\n\n");
+
+    while(size > 1) {
+        for(int i = 0; i < 25; i++) {
+            if(nodes[i] != NULL) {
+                left = nodes[i];
+                pos_l = i;
+                for(int j = i + 1; j < 26; j++) {
+                    if(nodes[j] != NULL) {
+                        right = nodes[j];
+                        pos_r = j;
+                        i = j = 27;
+                    }
+                }
+            }
+        }
+        // printf("l: %c r: %c\n", left->letter, right->letter);
+        for(int i = 0; i < 25; i++) {
+            if(nodes[i] != NULL) {
+                for(int j = i + 1; j < 26; j++) {
+                    if(nodes[j] != NULL) {
+                        if(nodes[i]->prob + nodes[j]->prob < left->prob + right->prob) {
+                            left = nodes[i];
+                            right = nodes[j];
+                            pos_l = i;
+                            pos_r = j;
+                        }
+                    }
+                }
+            }
+        }
+        node = huffman_node_init(' ', left->prob + right->prob);
+        node->left = left;
+        node->right = right;
+        nodes[pos_l] = NULL;
+        nodes[pos_r] = node;
+        size--;
+        for(int i = 0; i < 26; i++) {
+            if(nodes[i] == NULL) {
+                printf("NULL ");
+            } else {
+                printf("%c(%.2f) ", nodes[i]->letter, nodes[i]->prob);
+            }
+        }
+        printf("\n\n");
     }
-    printf("\n");
-    for(int i = 0; i < 26; i++) {
-        printf("%5.2f ", probs[i][1]);
-    }
+    huffman_tree tree = huffman_tree_init();
+    tree->root = node;
+
+    huffman_tree_print(tree->root, 0);
+
+    huffman_tree_free(tree);
 }
 
 int main() {
