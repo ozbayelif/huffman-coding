@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define INF 30000
+#define INF 0xFFFFFFFF
 
 typedef struct huffman_node_s *huffman_node;
 typedef struct huffman_node_s {
@@ -213,14 +213,13 @@ huffman_node *get_nodes(char *source_path) {
 }
 
 int huffman_coding(char *source_path) {
-    huffman_node *nodes;
-    huffman_node node, left, right;
+    huffman_node *nodes, node, left, right;
+    huffman_node max_node = huffman_node_init('*', 101.0);
     int size = 26, pos_l = 0, pos_r = 1;
 
     nodes = get_nodes(source_path);
     mergesort(nodes, 0, 26);
 
-    huffman_node max_node = huffman_node_init('*', 101.0);
     left = max_node;
     right = max_node;
     pos_l = 1;
@@ -249,12 +248,12 @@ int huffman_coding(char *source_path) {
         nodes[pos_r] = node;
         size--;
     }
+    free(max_node);
 
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
     huffman_tree_print(tree->root, 0);
     huffman_tree_free(tree);
-    free(max_node);
 
     return 1;
 }
