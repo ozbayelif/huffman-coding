@@ -36,6 +36,7 @@ huffman_node *get_nodes(char *source_path);
 huffman_tree huffman_coding(char *source_path);
 void write_code(FILE *fp, char *code, int height, unsigned long *msg, int *fullness);
 int compress(char *source_path, char *target_path, huffman_tree tree);
+int extract(char *source_path, char *target_path, huffman_tree tree);
 
 huffman_tree huffman_tree_init() {
     huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
@@ -370,6 +371,49 @@ int compress(char *source_path, char *target_path, huffman_tree tree) {
     }
     if(fullness != 0) {
         fwrite(&msg, sizeof(unsigned long), 1, fout);
+    }
+
+    fclose(fin);
+    fclose(fout);
+
+    return 1;
+}
+
+int extract(char *source_path, char *target_path, huffman_tree tree) {
+    FILE *fin = fopen(source_path, "rb");
+    FILE *fout = fopen(target_path, "w");
+    unsigned long msg = 0UL;
+    huffman_node node = tree->root;
+    int sh;
+
+    if(fin == NULL) {
+        printf("[extract] Error: File not found!\n");
+        return -1;
+    }
+    if(fout == NULL) {
+        printf("[extract] Error: File couldn't be created!\n");
+        return -1;
+    }
+
+    while(fread(&msg, sizeof(unsigned long), 1, fin) == 1) {
+        sh = UNIT_LEN - 1;
+        while(sh >= 0) {
+            if(node->left == NULL && node->right == NULL) {
+                fprintf(fout, "%c", node->letter);
+                node = tree->root;
+            } else {
+                if(((msg >> sh) & 0b00000001) == 0) {
+                    node = node->left;
+                } else {
+                    node = node->right;
+                }
+                sh--;
+            }
+        }
+        if(node->left == NULL && node->right == NULL) {
+            fprintf(fout, "%c", node->letter);
+            node = tree->root;
+        }
     }
 
     fclose(fin);
