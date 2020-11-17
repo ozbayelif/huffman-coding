@@ -30,6 +30,8 @@ void mergesort (huffman_node *A, int p, int r);
 int filter_text(char *source_path, char *target_path);
 huffman_node *get_nodes(char *source_path);
 huffman_tree huffman_coding(char *source_path);
+void write_code(FILE *fp, char *code, unsigned long *msg, int *fullness);
+int compress(char *source_path, char *target_path, huffman_tree tree);
 
 huffman_tree huffman_tree_init() {
     huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
@@ -292,11 +294,60 @@ huffman_tree huffman_coding(char *source_path) {
     return tree;
 }
 
+void write_code(FILE *fp, char *code, unsigned long *msg, int *fullness) {
+    int i = 0;
+    int size = 10;
+
+    while(code[i] == '*') {
+        i++;
+    }
+    while(i < size) {
+        if(*fullness >= 8) {
+            fwrite(msg, sizeof(unsigned long), 1, fp);
+            *msg = 0UL;
+            *fullness = 0;
+        } else {
+            *msg <<= 1;
+            if(code[i] == '1') {
+                *msg |= 1;
+            }
+            i++;
+            (*fullness)++;
+        }
+    }
+}
+
+int compress(char *source_path, char *target_path, huffman_tree tree) {
+    FILE *fin = fopen(source_path, "r");
+    FILE *fout = fopen(target_path, "wb");
+    char ch, *code;
+    unsigned long msg = 0UL;
+    int fullness = 0;
+
+    if(fin == NULL) {
+        printf("[encode] Error: File not found!\n");
+        return -1;
+    }
+    if(fout == NULL) {
+        printf("[encode] Error: File couldn't be created!\n");
+        return -1;
+    }
+
+    while(fscanf(fin, "%c", &ch) == 1) {
+        code = tree->node_list[((int)ch - 97) % 26]->code;
+        write_code(fout, code, &msg, &fullness);
+    }
+    if(fullness != 0) {
+        fwrite(&msg, sizeof(unsigned long), 1, fout);
+    }
+
+    fclose(fin);
+    fclose(fout);
+
+    return 1;
+}
+
 int main() {
-    char *sample_path = "./texts/sample.txt";
-    char *clean_sample_path = "./texts/clean_sample.txt";
-    
-    filter_text(sample_path, clean_sample_path);
 
     return 0;
 }
