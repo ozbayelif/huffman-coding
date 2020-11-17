@@ -302,11 +302,11 @@ huffman_tree huffman_coding(char *source_path) {
 
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
-    height = huffman_tree_height(tree);
+    height = huffman_tree_height(tree) + 1;
     tree->height = height;
 
     for(int i = 0; i < ALPH_SIZE; i++) {
-        j = height - 1;
+        j = height - 2;
         node = alph[i];
         curr = alph[i];
         node->code = (char *)malloc(sizeof(char) * height);
@@ -369,12 +369,16 @@ int compress(char *source_path, char *target_path, huffman_tree tree) {
 
     while(fscanf(fin, "%c", &ch) == 1) {
         if(ch == ' ') {
+            code[tree->height - 1] = '0';
             code = tree->node_list[ALPH_SIZE - 1]->code;    
         } else {
             if((int)ch < 97) {
-                ch = ch + 32;
+                code = tree->node_list[((int)ch - 65) % (ALPH_SIZE - 1)]->code;
+                code[tree->height - 1] = '1';
+            } else {
+                code = tree->node_list[((int)ch - 97) % (ALPH_SIZE - 1)]->code;
+                code[tree->height - 1] = '0';
             }
-            code = tree->node_list[((int)ch - 97) % 26]->code;
         }
         write_code(fout, code, tree->height, &msg, &fullness);
     }
@@ -391,7 +395,7 @@ int compress(char *source_path, char *target_path, huffman_tree tree) {
 int extract(char *source_path, char *target_path, huffman_tree tree) {
     FILE *fin = fopen(source_path, "rb");
     FILE *fout = fopen(target_path, "w");
-    char msg = 0;
+    char msg = 0, new = 1;
     huffman_node node = tree->root;
     int sh;
 
@@ -405,11 +409,19 @@ int extract(char *source_path, char *target_path, huffman_tree tree) {
     }
 
     while(fread(&msg, sizeof(char), 1, fin) == 1) {
-        sh = UNIT_LEN - 1;
+        if(new) {
+            sh = UNIT_LEN - 1;
+        }
+        new = 1;
         while(sh >= 0) {
             if(node->left == NULL && node->right == NULL) {
-                fprintf(fout, "%c", node->letter);
+                if((msg >> sh) & 0b00000001) {
+                    fprintf(fout, "%c", node->letter - 32);
+                } else {
+                    fprintf(fout, "%c", node->letter);
+                }
                 node = tree->root;
+                sh--;
             } else {
                 if(((msg >> sh) & 0b00000001) == 0) {
                     node = node->left;
@@ -420,8 +432,17 @@ int extract(char *source_path, char *target_path, huffman_tree tree) {
             }
         }
         if(node->left == NULL && node->right == NULL) {
-            fprintf(fout, "%c", node->letter);
+            fread(&msg, sizeof(char), 1, fin);
+            sh = UNIT_LEN - 1;
+            if((msg >> sh) & 0b00000001) {
+                fprintf(fout, "%c", node->letter - 32);
+            } else {
+                fprintf(fout, "%c", node->letter);
+            }
             node = tree->root;
+            sh--;
+            new = 0;
+            fseek(fin, -sizeof(char), SEEK_CUR);
         }
     }
 
@@ -432,19 +453,15 @@ int extract(char *source_path, char *target_path, huffman_tree tree) {
 }
 
 int main() {
-    char *clean_sample_path = "./texts/clean_sample.txt";
-    char *compressed_clean_sample_path = "./texts/clean_sample.ez";
-    char *extracted_clean_sample_path = "./texts/clean_sample2.txt";
+    char *messy_sample_path = "./texts/messy_sample.txt";
+    char *sample_path = "./texts/sample.txt";
+    char *compressed_sample_path = "./texts/sample.ez";
+    char *extracted__sample_path = "./texts/sample2.txt";
     
-    // int ret = filter_text(sample_path, clean_sample_path);
-    // if(ret == -1) {
-    //     return -1;
-    // }
-
-    huffman_tree tree = huffman_coding(clean_sample_path);
-    compress(clean_sample_path, compressed_clean_sample_path, tree);
-    extract(compressed_clean_sample_path, extracted_clean_sample_path, tree);
-
+    filter_text(messy_sample_path, sample_path);
+    huffman_tree tree = huffman_coding(sample_path);
+    compress(sample_path, compressed_sample_path, tree);
+    extract(compressed_sample_path, extracted__sample_path, tree);
     huffman_tree_free(tree);
 
     return 0;
