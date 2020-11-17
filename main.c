@@ -224,9 +224,14 @@ huffman_node *get_nodes(char *source_path) {
 huffman_tree huffman_coding(char *source_path) {
     huffman_node *nodes, *nodes2, node, left, right, curr;
     huffman_node max_node = huffman_node_init('*', 101.0);
-    int size = 26, pos_l = 0, pos_r = 1;
+    int size = 26, pos_l = 0, pos_r = 1, j;
 
     nodes = get_nodes(source_path);
+    nodes2 = (huffman_node *)malloc(sizeof(huffman_node) * 26);
+    for(int i = 0; i < 26; i++) {
+        nodes2[i] = nodes[i];
+    }
+
     mergesort(nodes, 0, 26);
 
     left = max_node;
@@ -266,6 +271,21 @@ huffman_tree huffman_coding(char *source_path) {
 
     huffman_tree_print(tree->root, 0);
 
+    for(int i = 0; i < 26; i++) {
+        j = 9;
+        node = nodes2[i];
+        curr = nodes2[i];
+        while(curr != tree->root) {
+            if(curr->parent->left == curr) {
+                node->code[j] = '0';
+                j--;
+            } else if(curr->parent->right == curr) {
+                node->code[j] = '1';
+                j--;
+            }
+            curr = curr->parent;
+        }
+    }
     return tree;
 }
 
