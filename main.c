@@ -23,7 +23,8 @@ huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
 void huffman_tree_free_recursion(huffman_node node);
 void huffman_tree_free(huffman_tree tree);
-void huffman_tree_print(huffman_node node, int i);
+void huffman_tree_print_recursion(huffman_node node, int i);
+void huffman_tree_print(huffman_tree tree);
 void merge(huffman_node *A, int p, int q, int r);
 void mergesort (huffman_node *A, int p, int r);
 int filter_text(char *source_path, char *target_path);
@@ -78,15 +79,22 @@ void huffman_tree_free(huffman_tree tree) {
     free(tree);
 }
 
-void huffman_tree_print(huffman_node node, int i) {
+void huffman_tree_print_recursion(huffman_node node, int i) {
     if(node != NULL) {
         i++;
-        huffman_tree_print(node->right, i);
+        huffman_tree_print_recursion(node->right, i);
         for (int j = 0; j < i; j++) {
             printf("\t");
         }
         printf("%c(%.2f)\n", node->letter, node->prob);
-        huffman_tree_print(node->left, i);
+        huffman_tree_print_recursion(node->left, i);
+    }
+}
+
+void huffman_tree_print(huffman_tree tree) {
+    huffman_tree_print_recursion(tree->root, 0);
+    for(int i = 0; i < 26; i++) {
+        printf("%c -> %s\n", tree->node_list[i]->letter, tree->node_list[i]->code);
     }
 }
 
@@ -263,8 +271,6 @@ huffman_tree huffman_coding(char *source_path) {
 
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
-
-    huffman_tree_print(tree->root, 0);
 
     for(int i = 0; i < 26; i++) {
         j = 9;
