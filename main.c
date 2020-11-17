@@ -16,6 +16,7 @@ typedef struct huffman_node_s {
 typedef struct huffman_tree_s *huffman_tree;
 typedef struct huffman_tree_s {
     huffman_node root;
+    huffman_node *node_list;
 } huffman_tree_t[1];
 
 huffman_tree huffman_tree_init();
@@ -36,6 +37,7 @@ huffman_tree huffman_tree_init() {
         exit(1);
     }
     tree->root = NULL;
+    tree->node_list = NULL;
 
     return tree;
 }
@@ -72,6 +74,7 @@ void huffman_tree_free_recursion(huffman_node node) {
 
 void huffman_tree_free(huffman_tree tree) {
     huffman_tree_free_recursion(tree->root);
+    free(tree->node_list);
     free(tree);
 }
 
@@ -278,6 +281,8 @@ huffman_tree huffman_coding(char *source_path) {
             curr = curr->parent;
         }
     }
+    tree->node_list = alph;
+
     return tree;
 }
 
