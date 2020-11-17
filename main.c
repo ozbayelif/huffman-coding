@@ -3,6 +3,7 @@
 
 #define INF 0xFFFFFFFF
 #define UNIT_LEN 8
+#define ALPH_SIZE 27
 
 typedef struct huffman_node_s *huffman_node;
 typedef struct huffman_node_s {
@@ -114,7 +115,7 @@ void huffman_tree_print(huffman_tree tree) {
     int j;
 
     huffman_tree_print_recursion(tree->root, 0);
-    for(int i = 0; i < 26; i++) {
+    for(int i = 0; i < ALPH_SIZE; i++) {
         printf("%c -> ", tree->node_list[i]->letter);
         j = 0;
         while(tree->node_list[i]->code[j] == '*') {
@@ -231,21 +232,23 @@ huffman_node *get_nodes(char *source_path) {
         return NULL;
     }
 
-    huffman_node *nodes = (huffman_node *)malloc(sizeof(huffman_node) * 26);
-    for(int i = 0; i < 26; i++) {
+    huffman_node *nodes = (huffman_node *)malloc(sizeof(huffman_node) * ALPH_SIZE);
+    for(int i = 0; i < ALPH_SIZE - 1; i++) {
         nodes[i] = huffman_node_init((char)(i + 97), 0.0);
     }
+    nodes[ALPH_SIZE - 1] = huffman_node_init(' ', 0.0);
     while(fscanf(fp, "%c", &ch) == 1) {
         if((int)ch == 32) {
-            continue;
-        }
+            nodes[ALPH_SIZE - 1]->prob++;
+        } else {
         size++;
         if((int)ch < 97) {
             ch = ch + 32;
         }
         nodes[(ch - 97) % 26]->prob++;
     }
-    for(int i = 0; i < 26; i++) {
+    }
+    for(int i = 0; i < ALPH_SIZE; i++) {
         nodes[i]->prob = nodes[i]->prob * 100 / size;
     }
     fclose(fp);
@@ -256,15 +259,15 @@ huffman_node *get_nodes(char *source_path) {
 huffman_tree huffman_coding(char *source_path) {
     huffman_node *nodes, *alph, node, left, right, curr;
     huffman_node max_node = huffman_node_init('*', 101.0);
-    int size = 26, pos_l = 0, pos_r = 1, j, height;
+    int size = ALPH_SIZE, pos_l = 0, pos_r = 1, j, height;
 
     nodes = get_nodes(source_path);
-    alph = (huffman_node *)malloc(sizeof(huffman_node) * 26);
-    for(int i = 0; i < 26; i++) {
+    alph = (huffman_node *)malloc(sizeof(huffman_node) * ALPH_SIZE);
+    for(int i = 0; i < ALPH_SIZE; i++) {
         alph[i] = nodes[i];
     }
 
-    mergesort(nodes, 0, 26);
+    mergesort(nodes, 0, ALPH_SIZE);
 
     left = max_node;
     right = max_node;
@@ -272,7 +275,7 @@ huffman_tree huffman_coding(char *source_path) {
     while(size > 1) {
         left = max_node;
         right = max_node;
-        for(int i = 0; i < 26; i++) {
+        for(int i = 0; i < ALPH_SIZE; i++) {
             if(nodes[i] != NULL) {
                 if(nodes[i]->prob < left->prob) {
                     if(nodes[pos_l] != NULL) {
@@ -287,7 +290,7 @@ huffman_tree huffman_coding(char *source_path) {
                 }
             }
         }
-        node = huffman_node_init(' ', left->prob + right->prob);
+        node = huffman_node_init('*', left->prob + right->prob);
         node->left = left;
         node->right = right;
         left->parent = node;
@@ -303,7 +306,7 @@ huffman_tree huffman_coding(char *source_path) {
     height = huffman_tree_height(tree);
     tree->height = height;
 
-    for(int i = 0; i < 26; i++) {
+    for(int i = 0; i < ALPH_SIZE; i++) {
         j = height - 1;
         node = alph[i];
         curr = alph[i];
@@ -366,7 +369,11 @@ int compress(char *source_path, char *target_path, huffman_tree tree) {
     }
 
     while(fscanf(fin, "%c", &ch) == 1) {
+        if(ch == ' ') {
+            code = tree->node_list[ALPH_SIZE - 1]->code;    
+        } else {
         code = tree->node_list[((int)ch - 97) % 26]->code;
+        }
         write_code(fout, code, tree->height, &msg, &fullness);
     }
     if(fullness != 0) {
