@@ -69,7 +69,6 @@ void huffman_tree_free_recursion(huffman_node node) {
         huffman_tree_free_recursion(node->left);
         node->right = NULL;
         node->left = NULL;
-        free(node->code);
         free(node);
     }
 }
