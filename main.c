@@ -23,6 +23,8 @@ huffman_tree huffman_tree_init();
 huffman_node huffman_node_init(char letter, float data);
 void huffman_tree_free_recursion(huffman_node node);
 void huffman_tree_free(huffman_tree tree);
+int huffman_tree_height_recursion(huffman_node node, int i, int max_i);
+int huffman_tree_height(huffman_tree tree);
 void huffman_tree_print_recursion(huffman_node node, int i);
 void huffman_tree_print(huffman_tree tree);
 void merge(huffman_node *A, int p, int q, int r);
@@ -79,6 +81,24 @@ void huffman_tree_free(huffman_tree tree) {
     huffman_tree_free_recursion(tree->root);
     free(tree->node_list);
     free(tree);
+}
+
+int huffman_tree_height_recursion(huffman_node node, int i, int max_i) {
+    if(node != NULL) {
+        i++;
+        max_i = huffman_tree_height_recursion(node->right, i, max_i);
+        max_i = huffman_tree_height_recursion(node->left, i, max_i);
+        if(i > max_i) {
+            max_i = i;
+        }
+    }
+    return max_i;
+}
+
+int huffman_tree_height(huffman_tree tree) {
+    int height = huffman_tree_height_recursion(tree->root, 0, 0) - 1;
+
+    return height;
 }
 
 void huffman_tree_print_recursion(huffman_node node, int i) {
