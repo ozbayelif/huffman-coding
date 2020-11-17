@@ -95,34 +95,26 @@ void merge(huffman_node *A, int p, int q, int r) {
 	n2 = r - q;
 	L = (huffman_node *)malloc(sizeof(huffman_node) * (n1 + 1));
     for(i = 0; i < n1; i++) {
-        L[i] = huffman_node_init(A[p+i]->letter, A[p+i]->prob);
+        L[i] = A[p+i];
     }
     L[n1] = huffman_node_init('*', INF);
 	R = (huffman_node *)malloc(sizeof(huffman_node) * (n2 + 1));
     for(i = 0; i < n2; i++) {
-        R[i] = huffman_node_init(A[q+i]->letter, A[q+i]->prob);
+        R[i] = A[q+i];
     }
     R[n2] = huffman_node_init('*', INF);
 
 	i = j = 0;
 	for(k = p; k < r; k++) {
 		if(L[i]->prob <= R[j]->prob) {
-			A[k]->letter = L[i]->letter;
-            A[k]->prob = L[i]->prob;
+            A[k] = L[i];
 			i++;
 		} else {
-			A[k]->letter = R[j]->letter;
-            A[k]->prob = R[j]->prob;
+			A[k] = R[j];
 			j++;
 		}
 	}
-    for(i = 0; i < n1 + 1; i++) {
-        free(L[i]);
-    }
 	free(L);
-    for(i = 0; i < n2 + 1; i++) {
-        free(R[i]);
-    }
 	free(R);
 }
 
