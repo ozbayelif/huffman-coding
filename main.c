@@ -7,6 +7,7 @@ typedef struct huffman_node_s *huffman_node;
 typedef struct huffman_node_s {
     char letter;
     float prob;
+    char *code;
     huffman_node left;
     huffman_node right;
     huffman_node parent;
@@ -50,7 +51,10 @@ huffman_node huffman_node_init(char letter, float prob) {
     node->left = NULL;
     node->right = NULL;
     node->parent = NULL;
-
+    node->code = (char *)malloc(sizeof(char) * 10);
+    for(int i = 0; i < 10; i++) {
+        node->code[i] = '*';
+    }
     return node;
 }
 
@@ -61,6 +65,7 @@ void huffman_tree_free_recursion(huffman_node node) {
         node->right = NULL;
         node->left = NULL;
         node->parent = NULL;
+        free(node->code);
         free(node);
     }
 }
