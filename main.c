@@ -26,6 +26,7 @@ void merge(huffman_node *A, int p, int q, int r);
 void mergesort (huffman_node *A, int p, int r);
 int filter_text(char *source_path, char *target_path);
 huffman_node *get_nodes(char *source_path);
+huffman_tree huffman_coding(char *source_path);
 
 huffman_tree huffman_tree_init() {
     huffman_tree tree = (huffman_tree)malloc(sizeof(huffman_tree_t));
@@ -215,8 +216,8 @@ huffman_node *get_nodes(char *source_path) {
     return nodes;
 }
 
-int huffman_coding(char *source_path) {
-    huffman_node *nodes, node, left, right;
+huffman_tree huffman_coding(char *source_path) {
+    huffman_node *nodes, *nodes2, node, left, right, curr;
     huffman_node max_node = huffman_node_init('*', 101.0);
     int size = 26, pos_l = 0, pos_r = 1;
 
@@ -257,10 +258,10 @@ int huffman_coding(char *source_path) {
 
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
-    huffman_tree_print(tree->root, 0);
-    huffman_tree_free(tree);
 
-    return 1;
+    huffman_tree_print(tree->root, 0);
+
+    return tree;
 }
 
 int main() {
