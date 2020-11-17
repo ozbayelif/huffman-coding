@@ -17,6 +17,7 @@ typedef struct huffman_tree_s *huffman_tree;
 typedef struct huffman_tree_s {
     huffman_node root;
     huffman_node *node_list;
+    int height;
 } huffman_tree_t[1];
 
 huffman_tree huffman_tree_init();
@@ -32,7 +33,7 @@ void mergesort (huffman_node *A, int p, int r);
 int filter_text(char *source_path, char *target_path);
 huffman_node *get_nodes(char *source_path);
 huffman_tree huffman_coding(char *source_path);
-void write_code(FILE *fp, char *code, unsigned long *msg, int *fullness);
+void write_code(FILE *fp, char *code, int height, unsigned long *msg, int *fullness);
 int compress(char *source_path, char *target_path, huffman_tree tree);
 
 huffman_tree huffman_tree_init() {
@@ -58,10 +59,6 @@ huffman_node huffman_node_init(char letter, float prob) {
     node->left = NULL;
     node->right = NULL;
     node->parent = NULL;
-    node->code = (char *)malloc(sizeof(char) * 10);
-    for(int i = 0; i < 10; i++) {
-        node->code[i] = '*';
-    }
     return node;
 }
 
@@ -71,7 +68,6 @@ void huffman_tree_free_recursion(huffman_node node) {
         huffman_tree_free_recursion(node->left);
         node->right = NULL;
         node->left = NULL;
-        node->parent = NULL;
         free(node->code);
         free(node);
     }
@@ -122,8 +118,8 @@ void huffman_tree_print(huffman_tree tree) {
         j = 0;
         while(tree->node_list[i]->code[j] == '*') {
             j++;
-    }
-        for(; j < 10; j++) {
+        }
+        for(; j < tree->height; j++) {
             printf("%c", tree->node_list[i]->code[j]);
 }
         printf("\n");
@@ -259,7 +255,7 @@ huffman_node *get_nodes(char *source_path) {
 huffman_tree huffman_coding(char *source_path) {
     huffman_node *nodes, *alph, node, left, right, curr;
     huffman_node max_node = huffman_node_init('*', 101.0);
-    int size = 26, pos_l = 0, pos_r = 1, j;
+    int size = 26, pos_l = 0, pos_r = 1, j, height;
 
     nodes = get_nodes(source_path);
     alph = (huffman_node *)malloc(sizeof(huffman_node) * 26);
@@ -303,11 +299,17 @@ huffman_tree huffman_coding(char *source_path) {
 
     huffman_tree tree = huffman_tree_init();
     tree->root = node;
+    height = huffman_tree_height(tree);
+    tree->height = height;
 
     for(int i = 0; i < 26; i++) {
-        j = 9;
+        j = height - 1;
         node = alph[i];
         curr = alph[i];
+        node->code = (char *)malloc(sizeof(char) * height);
+        for(int k = 0; k < height; k++) {
+            node->code[k] = '*';
+        }
         while(curr != tree->root) {
             if(curr->parent->left == curr) {
                 node->code[j] = '0';
@@ -324,14 +326,13 @@ huffman_tree huffman_coding(char *source_path) {
     return tree;
 }
 
-void write_code(FILE *fp, char *code, unsigned long *msg, int *fullness) {
+void write_code(FILE *fp, char *code, int height, unsigned long *msg, int *fullness) {
     int i = 0;
-    int size = 10;
 
     while(code[i] == '*') {
         i++;
     }
-    while(i < size) {
+    while(i < height) {
         if(*fullness >= 8) {
             fwrite(msg, sizeof(unsigned long), 1, fp);
             *msg = 0UL;
@@ -355,17 +356,17 @@ int compress(char *source_path, char *target_path, huffman_tree tree) {
     int fullness = 0;
 
     if(fin == NULL) {
-        printf("[encode] Error: File not found!\n");
+        printf("[compress] Error: File not found!\n");
         return -1;
     }
     if(fout == NULL) {
-        printf("[encode] Error: File couldn't be created!\n");
+        printf("[compress] Error: File couldn't be created!\n");
         return -1;
     }
 
     while(fscanf(fin, "%c", &ch) == 1) {
         code = tree->node_list[((int)ch - 97) % 26]->code;
-        write_code(fout, code, &msg, &fullness);
+        write_code(fout, code, tree->height, &msg, &fullness);
     }
     if(fullness != 0) {
         fwrite(&msg, sizeof(unsigned long), 1, fout);
