@@ -241,12 +241,12 @@ huffman_node *get_nodes(char *source_path) {
         if((int)ch == 32) {
             nodes[ALPH_SIZE - 1]->prob++;
         } else {
-        size++;
-        if((int)ch < 97) {
-            ch = ch + 32;
+            size++;
+            if((int)ch < 97) {
+                ch = ch + 32;
+            }
+            nodes[(ch - 97) % 26]->prob++;
         }
-        nodes[(ch - 97) % 26]->prob++;
-    }
     }
     for(int i = 0; i < ALPH_SIZE; i++) {
         nodes[i]->prob = nodes[i]->prob * 100 / size;
