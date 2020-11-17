@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #define INF 0xFFFFFFFF
+#define UNIT_LEN 8
 
 typedef struct huffman_node_s *huffman_node;
 typedef struct huffman_node_s {
@@ -333,7 +334,7 @@ void write_code(FILE *fp, char *code, int height, unsigned long *msg, int *fulln
         i++;
     }
     while(i < height) {
-        if(*fullness >= 8) {
+        if(*fullness >= UNIT_LEN) {
             fwrite(msg, sizeof(unsigned long), 1, fp);
             *msg = 0UL;
             *fullness = 0;
