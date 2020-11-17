@@ -94,9 +94,19 @@ void huffman_tree_print_recursion(huffman_node node, int i) {
 }
 
 void huffman_tree_print(huffman_tree tree) {
+    int j;
+
     huffman_tree_print_recursion(tree->root, 0);
     for(int i = 0; i < 26; i++) {
-        printf("%c -> %s\n", tree->node_list[i]->letter, tree->node_list[i]->code);
+        printf("%c -> ", tree->node_list[i]->letter);
+        j = 0;
+        while(tree->node_list[i]->code[j] == '*') {
+            j++;
+    }
+        for(; j < 10; j++) {
+            printf("%c", tree->node_list[i]->code[j]);
+}
+        printf("\n");
     }
 }
 
