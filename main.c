@@ -124,6 +124,7 @@ void huffman_tree_print(huffman_tree tree) {
         for(; j < tree->height; j++) {
             printf("%c", tree->node_list[i]->code[j]);
         }
+        printf(" %.2f\n", tree->node_list[i]->prob);
     }
 }
 
@@ -240,12 +241,12 @@ huffman_node *get_nodes(char *source_path) {
         if((int)ch == 32) {
             nodes[ALPH_SIZE - 1]->prob++;
         } else {
-            size++;
             if((int)ch < 97) {
                 ch = ch + 32;
             }
             nodes[(ch - 97) % 26]->prob++;
         }
+        size++;
     }
     for(int i = 0; i < ALPH_SIZE; i++) {
         nodes[i]->prob = nodes[i]->prob * 100 / size;
@@ -460,6 +461,7 @@ int main() {
     
     filter_text(messy_sample_path, sample_path);
     huffman_tree tree = huffman_coding(sample_path);
+    huffman_tree_print(tree);
     compress(sample_path, compressed_sample_path, tree);
     extract(compressed_sample_path, extracted__sample_path, tree);
     huffman_tree_free(tree);

@@ -1,0 +1,191 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{multicol}
+
+\renewcommand{\thesubsection}{\thesection.\alph{subsection}}
+
+\author{Elif Özbay}
+\title{Huffman Coding Compression Algorithm}
+\date{18.11.2020}
+
+\begin{document}
+    \begin{titlepage}
+        \maketitle
+    \end{titlepage}
+
+    \section{Occurences}
+    The percentages of the letters in the text is calculated as in Figure \ref{occur}.
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{|c|r|}
+            \hline
+            \textbf{Letter}                         & \multicolumn{1}{c|}{\textbf{Percentage}} \\ \hline
+            \textbf{a}                              & 6.30\%                                \\ \hline
+            \textbf{b}                              & 1.36\%                                   \\ \hline
+            \textbf{c}                              & 2.27\%                                    \\ \hline
+            \textbf{d}                              & 3.00\%                                    \\ \hline
+            \textbf{e}                              & 10.44\%                                      \\ \hline
+            \textbf{f}                              & 2.00\%                                   \\ \hline
+            \textbf{g}                              & 1.35\%                                   \\ \hline
+            \textbf{h}                              & 4.73\%                                     \\ \hline
+            \textbf{i}                              & 6.34\%                                     \\ \hline
+            \textbf{j}                              & 0.06\%                              \\ \hline
+            \textbf{k}                              & 0.42\%                                 \\ \hline
+            \textbf{l}                              & 2.64\%                                    \\ \hline
+            \textbf{m}                              & 2.03\%                                   \\ \hline
+            \textbf{n}                              & 6.37\%                                     \\ \hline
+            \textbf{o}                              & 6.47\%                                     \\ \hline
+            \textbf{p}                              & 1.41\%                                   \\ \hline
+            \textbf{q}                              & 0.10\%                               \\ \hline
+            \textbf{r}                              & 4.48\%                                     \\ \hline
+            \textbf{s}                              & 5.65\%                                     \\ \hline
+            \textbf{t}                              & 8.03\%                                     \\ \hline
+            \textbf{u}                              & 2.14\%                                    \\ \hline
+            \textbf{v}                              & 0.79\%                                  \\ \hline
+            \textbf{w}                              & 1.62\%                                   \\ \hline
+            \textbf{x}                              & 0.23\%                                \\ \hline
+            \textbf{y}                              & 1.36\%                                   \\ \hline
+            \textbf{z}                              & 0.02\%                              \\ \hline
+            \textbf{' '}                            & 18.35\%                                      \\ \hline
+        \end{tabular}
+        \caption{Letter Occurences}\label{occur}
+    \end{table}
+
+    \section{Compression Size Metrics}
+    \begin{table}[!h]
+        \centering
+        \begin{tabular}{c|r|r|r|r}
+            & \multicolumn{1}{c}{\textbf{Original File}} & \multicolumn{1}{c}{\textbf{Filtered File}} & \multicolumn{1}{c}{\textbf{Compressed File}} & \multicolumn{1}{c}{\textbf{Extracted File}} \\\hline
+            \textbf{Size (b)} & 1,628,965 & 1,550,801 & 988,512 & 1,550,801 \\\hline
+            \textbf{Size (mb)} & 1.62 & 1.55 & 0.988 & 1.55  \\\hline
+        \end{tabular}
+        \caption{Size Metrics}\label{sizes}
+    \end{table}
+
+    \section{Lookup Table}
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{|c|r|}
+            \hline
+            \textbf{Letter}                         & \multicolumn{1}{c|}{\textbf{Code}} \\ \hline
+            \textbf{a}                              & 1000                               \\ \hline
+            \textbf{b}                              & 011100                             \\ \hline
+            \textbf{c}                              & 00001                              \\ \hline
+            \textbf{d}                              & 01111                              \\ \hline
+            \textbf{e}                              & 010                                \\ \hline
+            \textbf{f}                              & 110010                             \\ \hline
+            \textbf{g}                              & 001110                             \\ \hline
+            \textbf{h}                              & 0010                               \\ \hline
+            \textbf{i}                              & 1001                               \\ \hline
+            \textbf{j}                              & 11000110001                        \\ \hline
+            \textbf{k}                              & 11000111                           \\ \hline
+            \textbf{l}                              & 00110                              \\ \hline
+            \textbf{m}                              & 110011                             \\ \hline
+            \textbf{n}                              & 1010                               \\ \hline
+            \textbf{o}                              & 1011                               \\ \hline
+            \textbf{p}                              & 011101                             \\ \hline
+            \textbf{q}                              & 1100011001                         \\ \hline
+            \textbf{r}                              & 0001                               \\ \hline
+            \textbf{s}                              & 0110                               \\ \hline
+            \textbf{t}                              & 1101                               \\ \hline
+            \textbf{u}                              & 00000                              \\ \hline
+            \textbf{v}                              & 1100010                            \\ \hline
+            \textbf{w}                              & 110000                             \\ \hline
+            \textbf{x}                              & 110001101                          \\ \hline
+            \textbf{y}                              & 001111                             \\ \hline
+            \textbf{z}                              & 11000110000                        \\ \hline
+            \textbf{' '}                            & 111                                \\ \hline
+        \end{tabular}
+        \caption{Codings}\label{codes}
+    \end{table}
+
+    \pagebreak
+    \section{Entropy}
+    \begin{align*}
+        H = -\sum_{i = 1}^{27} p_i log_2 p_i
+    \end{align*}
+    \begin{multline*}
+          = - 0.063 * log_2 0.063 - 0.0136 * log_2 0.0136 - 0.0227 * log_2 0.0227 - 0.03 * log_2 0.03 \\
+            - 0.1044 * log_2 0.1044 - 0.02 * log_2 0.02 - 0.0135 * log_2 0.0135 - 0.0473 * log_2 0.0473 \\
+            - 0.0634 * log_2 0.0634 - 0.0006 * log_2 0.0006 - 0.0042 * log_2 0.0042 - 0.0264 * log_2 0.0264 \\
+            - 0.0203 * log_2 0.0203 - 0.0637 * log_2 0.0637 - 0.0647 * log_2 0.0647 - 0.0141 * log_2 0.0141 \\
+            - 0.001 * log_2 0.001 - 0.0448 * log_2 0.0448 - 0.0565 * log_2 0.0565 - 0.0803 * log_2 0.0803 \\
+            - 0.0214 * log_2 0.0214 - 0.0079 * log_2 0.0079 - 0.0162 * log_2 0.0162 - 0.0023 * log_2 0.0023 \\
+            - 0.0136 * log_2 0.0136 - 0.0002 * log_2 0.0002 - 0.1835 * log_2 0.1835 \\
+    \end{multline*}
+    \begin{align*}
+        H = 4.0594 \text{ bits}
+    \end{align*}
+
+    \section{Efficiency}
+    \begin{minipage}[t]{.5\textwidth}
+        \null \vfill
+        \centering
+        \begin{tabular}{|c|r|r|}
+            \hline
+            \textbf{\small Letter}                  & \multicolumn{1}{c|}{\textbf{\small Original}} & \multicolumn{1}{c|}{\textbf{\small Compressed}} \\ \hline
+            \textbf{a}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{b}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{c}                              & 8 bits                                        & 5 bits                                               \\ \hline
+            \textbf{d}                              & 8 bits                                        & 5 bits                                               \\ \hline
+            \textbf{e}                              & 8 bits                                        & 3 bits                                               \\ \hline
+            \textbf{f}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{g}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{h}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{i}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{j}                              & 8 bits                                        & 11 bits                                              \\ \hline
+            \textbf{k}                              & 8 bits                                        & 8 bits                                               \\ \hline
+            \textbf{l}                              & 8 bits                                        & 5 bits                                               \\ \hline
+            \textbf{m}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{n}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{o}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{p}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{q}                              & 8 bits                                        & 10 bits                                              \\ \hline
+            \textbf{r}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{s}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{t}                              & 8 bits                                        & 4 bits                                               \\ \hline
+            \textbf{u}                              & 8 bits                                        & 5 bits                                               \\ \hline
+            \textbf{v}                              & 8 bits                                        & 7 bits                                               \\ \hline
+            \textbf{w}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{x}                              & 8 bits                                        & 9 bits                                               \\ \hline
+            \textbf{y}                              & 8 bits                                        & 6 bits                                               \\ \hline
+            \textbf{z}                              & 8 bits                                        & 11 bits                                              \\ \hline
+            \textbf{' '}                            & 8 bits                                        & 3 bits                                               \\ \hline
+        \end{tabular}
+        \vfill \null
+    \end{minipage}%
+    \begin{minipage}[t]{.5\textwidth}
+        \null \vfill
+        \textbf{Size Formula}
+        \begin{align*}
+            &size = \sum_{i = 1}^{27} l_i * k_i \\
+            &\text{where,}\\
+            l_i &= \text{code length of character } i, \\
+            k_i &= \text{\# occurences of character } i \\
+              t &= \text{total \# characters} = 1550801
+        \end{align*}
+        \textbf{Original Text}
+        \begin{align*}
+            \text{size} &= 8 * t \\
+                        &= 8 * 1550801 \\
+                        &= 12406408 \ \text{bits} \\
+                        &= 1550801 \ \text{bytes}
+        \end{align*}
+        \textbf{Compressed Text}
+        \begin{align*}
+            \text{size} &= 4 * 0.063 + 6 * 0.0136 + ...\\
+                        &= 6353941 \ \text{bits} \\
+                        &= 794242 \ \text{bytes}
+        \end{align*}
+        \textbf{Efficiency}
+            \begin{align*}
+                &\frac{794242}{1550801} \\
+                &=0.512
+            \end{align*}
+        \vfill \null
+    \end{minipage}%
+    
+\end{document}
